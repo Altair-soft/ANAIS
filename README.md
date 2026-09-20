@@ -32,6 +32,6 @@ ANAIS has been thought for beginners, but for the best pilots, ANAIS also provid
 
 ## External contributions
 
-ANAIS uses a Lambert solver that was worked out following the procedure described [here](https://www.esa.int/gsp/ACT/doc/MAD/pub/ACT-RPR-MAD-2014-RevisitingLambertProblem.pdf) by Dario Izzo. I want to thank him, his work proved to be invaluable to make this mod possible.
+ANAIS uses a Lambert solver that was worked out following the procedure described by Dario Izzo in his paper [Revisiting Lambert's problem](https://www.esa.int/gsp/ACT/doc/MAD/pub/ACT-RPR-MAD-2014-RevisitingLambertProblem.pdf) . I would like to express my gratitude to him, as his work proved to be invaluable to make this mod possible.
 Thanks to the SFS modding community that helped me on several occasions to solve issues related to Unity, the game engine.
 
