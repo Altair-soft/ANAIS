@@ -218,7 +218,7 @@ public class OrbitDrawer
     private double getPsiMax()
 	{
         double psiMax = 0.0f;
-		double alpha = 1.0 - orbit.slr / orbit.Planet.SOI;
+		double alpha = 1.0 - orbit.slr / (1.0625 * orbit.Planet.SOI); // *1.0625 to have a margin to fix for numerical precision errors
 
 		if (orbit.ecc + alpha < 0.0f)
 		{
@@ -743,7 +743,7 @@ public class OrbitDrawer
             i_to = GetLowerPsiIndex(psiTo);
 
 			// take into account that it's a circular array if the conic is closed
-			if(closedConic)
+			if(orbit.ecc < 1.0)
 			{
 				if (i_from == orbitPointList.Length) i_from = 0;
 				if (i_to == -1) i_to = orbitPointList.Length - 1;
@@ -758,7 +758,7 @@ public class OrbitDrawer
             i_to = GetUpperPsiIndex(psiTo);
 
             // take into account that it's a circular array if the conic is closed
-            if (closedConic)
+            if (orbit.ecc < 1.0)
             {
                 if (i_from == -1) i_from = orbitPointList.Length - 1;
 				if (i_to == orbitPointList.Length) i_to = 0;

@@ -1,14 +1,7 @@
 ﻿using SFS.World;
 using SFS.WorldBase;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 class ReturnToPlanetCalculator
 {
@@ -59,8 +52,6 @@ class ReturnToPlanetCalculator
     // NEWTON_PRECISION_THRESHOLD: This is the precision threshold that will be applied when using the Newton method
     private const double NEWTON_PRECISION_THRESHOLD = 0.00000001;
 
-    private const double MAX_ECCENTRICITY_FINAL_ORBIT = 0.01;
-
     public static bool calculateTrajectory(Planet planet, Location location, double targetRadius, bool includeInsertionCost, bool suggestOrbitInsertion, out Orbit orbit)
     {
         orbit = null;
@@ -72,7 +63,7 @@ class ReturnToPlanetCalculator
 
         // Manage the case when the ship is practically at the target altitude
         // -------------------------------------------------------------------
-        if(suggestOrbitInsertion && (Math.Abs(lambda - 1.0) < MAX_ECCENTRICITY_FINAL_ORBIT))
+        if(suggestOrbitInsertion && isAltitudeCloseEnoughForInsertion())
         {
             if(includeInsertionCost)
             {
@@ -839,17 +830,41 @@ class ReturnToPlanetCalculator
     }
 
 
+    private static bool isAltitudeCloseEnoughForInsertion()
+    {
+        if(Math.Abs(R_end - R_start) < 0.01 * planet.Radius)
+        {
+            // Allow insertion in circular orbit if difference of height is less than 1% of the planet radius
+            return true;
+        }
+        else
+        {
+            // Otherwise, allow insertion if difference of height is less than 1% of the target altitude
+            double altitude_end = R_end - planet.Radius;
+
+            return (Math.Abs(R_end - R_start) < 0.01 * altitude_end);
+        }
+    }
+
     private static Orbit generateFinalOrbit() 
     {
-        double ecc = Math.Abs(1.0 - lambda);
-        double slr = (2.0 - lambda) * R_start;
+        double ecc = Math.Abs(1.0 - lambda) / (1.0 + lambda);
+        double slr = 2.0 * R_start / (1.0 + lambda);
         double periapsis = slr / (1.0 + ecc);
 
-        double argOfPeriapsis = 0.0; // default value (used for circular orbits)
+        // values for R_start < R_end (ship below target radius, R_start is the periapsis)
+        double argOfPeriapsis = arg_start;
         double trueAnomaly = 0.0;
 
+        if (lambda > 1.0)
+        {
+            // values for R_start > R_end (ship is above the target radius)
+            argOfPeriapsis += Math.PI;
+            trueAnomaly = Math.PI;
+        }
+
         // calculate argument of periapsis
-        if (1.0 + ecc > 1.0) // eccentricity != 0.0 - tested that way (instead of ecc > 0.0) so that ecc is considered as zero if it's negligible (< 10^(-16))
+        /*if (1.0 + ecc > 1.0) // eccentricity != 0.0 - tested that way (instead of ecc > 0.0) so that ecc is considered as zero if it's negligible (< 10^(-16))
         {
             double theCosinus = (slr / R_start - 1.0) / ecc;
 
@@ -865,7 +880,7 @@ class ReturnToPlanetCalculator
             }
 
             argOfPeriapsis = arg_start - trueAnomaly;
-        }
+        }*/
 
         Orbit orbit = Orbit_Utils.CreateOrbit(slr, ecc, argOfPeriapsis, (int)sign_wt, planet, PathType.Eternal, null);
 

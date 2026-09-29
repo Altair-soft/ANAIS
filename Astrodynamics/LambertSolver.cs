@@ -627,10 +627,9 @@ public class LambertSolver
             else
             {
                 // Quasi-parabolic orbits need a special formula!
-                double u = q * _1_minus_x2;
                 double v = Math.Pow(S_term / ecc,2.0) * _1_minus_x2;
 
-                T_diff = q * S_term * ((((63*u + 70)*u + 80)*u + 96)*u + 128)/256.0 + Math.Pow(S_term/ecc, 3.0) * ((((19845*v + 26950)*v + 39600)*v + 66528)*v + 147840)/887040.0;
+                T_diff = q * S_term / (ecc*(1+ecc)) + Math.Pow(S_term / ecc, 3.0) * ((((19845 * v + 26950) * v + 39600) * v + 66528) * v + 147840) / 887040.0;
                 T_diff *= 0.5 * Tau;
             }
 
